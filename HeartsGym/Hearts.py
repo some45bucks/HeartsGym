@@ -1,4 +1,3 @@
-from random import random
 import gym
 import random
 
