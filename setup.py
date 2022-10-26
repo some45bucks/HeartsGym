@@ -2,16 +2,17 @@ from distutils.core import setup
 setup(
   name = 'HeartsGym',         
   packages = ['HeartsGym'],   
-  version = '0.1',     
+  version = '0.2',     
   license='MIT',        
   description = 'AI Gym for the card game Hearts',   
   author = 'Jacob Haight',                  
   author_email = 'jacobrhaight@gmail.com',
   url = 'https://github.com/some45bucks/HeartsGym',
-  download_url = 'https://github.com/some45bucks/HeartsGym/archive/refs/tags/v_01.tar.gz',
+  download_url = 'https://github.com/some45bucks/HeartsGym/archive/refs/tags/V_01.tar.gz',
   keywords = ['Hearts', 'AI', 'Gym', 'CardGame'],
   install_requires=[ 
           'gym',
+          'numpy'
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',      

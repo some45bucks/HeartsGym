@@ -1,5 +1,6 @@
 import gym
 import random
+import numpy as np
 
 class Card():
 
@@ -186,7 +187,10 @@ class Hearts(gym.Env):
         for i in range(4):
             obvs.append(self.state["scores"][(self.getCurrentPlayer()+i) % 4]/26)
 
-        return obvs
+        return np.array(obvs)
+
+    def isRoundOver(self):
+        return len(self.state["currentTrick"]) == 0
 
     # resets the env
     def reset(self):
