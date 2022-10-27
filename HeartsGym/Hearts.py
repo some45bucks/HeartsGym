@@ -1,6 +1,7 @@
 import gym
 import random
 import numpy as np
+import os
 
 class Card():
 
@@ -203,6 +204,8 @@ class Hearts(gym.Env):
             "shootingTheMoon": -1,
         }
 
+        self.log = ''
+
         while not Card.listContainCard(self.getCurrentPlayersHand(),Card.clubs,2):
             self.state["currentPlayer"]+=1
 
@@ -220,8 +223,10 @@ class Hearts(gym.Env):
                 if self.isActionValid(i):
                     action = i
                     break
-        
-        self.log += f"Player {self.getCurrentPlayer()} plays: {self.getCurrentPlayersHand()[action]} \n"
+        if self.getCurrentPlayersHand()[action].suit == Card.hearts or self.getCurrentPlayersHand()[action] == Card(Card.spade,Card.queen):
+                self.log += f"Player {self.getCurrentPlayer()} plays: \033[91m{self.getCurrentPlayersHand()[action]}\033[0m \n"
+        else:
+            self.log += f"Player {self.getCurrentPlayer()} plays: {self.getCurrentPlayersHand()[action]} \n"
         self.state["currentTrick"].append(self.getCurrentPlayersHand().pop(action))
 
         if len(self.state["currentTrick"]) == 4:
@@ -286,37 +291,59 @@ class Hearts(gym.Env):
         return self.observation(), reward, done
 
     # renders the game using text    
-    def render(self,log=False):
+    def render(self):
+        os.system('cls' if os.name=='nt' else 'clear')
+
         stateString = ""
-        print("\n\n\n\n\n\n---------\n")
 
         for i in range(4):
-            stateString += f"Player {i} score: {self.state['scores'][i]}\n"
+            if i == self.getCurrentPlayer() and len(self.getCurrentPlayersHand()) != 0:
+                stateString += f"                                                  \033[94mPlayer {i} score: {self.state['scores'][i]}\033[0m\n"
 
-        stateString += f"\nTrick: "
+            else:
+                stateString += f"                                                  Player {i} score: {self.state['scores'][i]}\n"
+        if len(self.getCurrentPlayersHand()) != 0:    
+            stateString += f"\n          Trick: "
 
         for i in self.state['currentTrick']:
-            stateString += f"{i} "
+            if i.suit == Card.hearts or i == Card(Card.spade,Card.queen):
+                stateString += "\033[91m"
 
-        stateString += f"\n\nHand: "
+            if i == self.state['currentTrick'][0]:
+                stateString += f"\033[1m{i}\033[0m "
+            else:
+                stateString += f"{i} "
 
-        for i in self.getCurrentPlayersHand():
-            stateString += "{:4s}".format(str(i))
+            if i.suit == Card.hearts or i == Card(Card.spade,Card.queen):
+                stateString += "\033[0m"
 
-        stateString += f"\n      "
+        if len(self.getCurrentPlayersHand()) != 0:
+            stateString += f"\n\n\n\n          Hand: "
+
+        for i in range(len(self.getCurrentPlayersHand())):
+            if self.getCurrentPlayersHand()[i].suit == Card.hearts or self.getCurrentPlayersHand()[i] == Card(Card.spade,Card.queen):
+                stateString += "\033[91m"
+
+            if self.isActionValid(i):
+                stateString += "\033[1m{:4s}\033[0m".format(str(self.getCurrentPlayersHand()[i]))
+            else:
+                stateString += "{:4s}".format(str(self.getCurrentPlayersHand()[i]))
+
+            if self.getCurrentPlayersHand()[i].suit == Card.hearts or self.getCurrentPlayersHand()[i] == Card(Card.spade,Card.queen):
+                stateString += "\033[0m"
+            
+
+        stateString += f"\n                "
 
         for i in range(13):
             if self.isActionValid(i):
-                stateString += "{:4s}".format(str(i))
+                stateString += "\033[1m{:4s}\033[0m".format(str(i))
             else:
                 stateString += "{:4s}".format("")
 
-        if log:
-            print(self.log)
+        print(self.log)
         print(stateString)
-        print('---------\n')
-        
-        
+
         self.log = ''
 
     # lets you play the game manualy with random actions filling in the other players
@@ -328,7 +355,7 @@ class Hearts(gym.Env):
         done = False
 
         if env.getCurrentPlayer() <= players-1:
-            env.render(True)
+            env.render()
 
         while not done:
             if env.getCurrentPlayer() <= players-1:
@@ -338,10 +365,10 @@ class Hearts(gym.Env):
             playState, playReward, done = env.step(action)
             Hearts.translateState(playState)
             if env.getCurrentPlayer() <= players-1:
-                env.render(True)
+                env.render()
 
         if env.getCurrentPlayer() > players-1 or players == 0:
-            env.render(True)
+            env.render()
 
     # makes the state into a human readable form
     def translateState(state):
@@ -378,3 +405,6 @@ class Hearts(gym.Env):
             pScores.append(i * 26)
 
         return pHand, pTrick, pPast, pScores
+
+
+Hearts.playHearts(3)
