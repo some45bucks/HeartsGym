@@ -229,9 +229,9 @@ class Hearts(gym.Env):
                     action = i
                     break
         if self.getCurrentPlayersHand()[action].suit == Card.hearts or self.getCurrentPlayersHand()[action] == Card(Card.spade,Card.queen):
-                self.log += f"Player {self.getCurrentPlayer()} plays: \033[91m{self.getCurrentPlayersHand()[action]}\033[0m \n"
+                self.log += f"Player {self.getCurrentPlayer()} plays: \033[91m{self.getCurrentPlayersHand()[action]}\033[0m "
         else:
-            self.log += f"Player {self.getCurrentPlayer()} plays: {self.getCurrentPlayersHand()[action]} \n"
+            self.log += f"Player {self.getCurrentPlayer()} plays: {self.getCurrentPlayersHand()[action]} "
         self.state["currentTrick"].append(self.getCurrentPlayersHand().pop(action))
 
         if len(self.state["currentTrick"]) == 4:
@@ -261,7 +261,7 @@ class Hearts(gym.Env):
                 self.state["pastCards"].append(tempCard)
             
             self.state["scores"][biggestCardNumPlayer] += score
-            self.log += f"\n*Round Over: Player {biggestCardNumPlayer} wins the trick and gets {score} point(s)*\n\n"
+            self.log += f"  *Round Over: Player {biggestCardNumPlayer} wins the trick and gets {score} point(s)*\n"
 
             if score > 0:
                 if self.state["shootingTheMoon"] == -1:
@@ -283,7 +283,7 @@ class Hearts(gym.Env):
                     reward[i] = 1-(self.state["scores"][i]/26)
 
                 done = True
-                self.log += f"**Game over**\n"
+                self.log += f"\n**Game over**\n"
                 self.log += f"\nReward: {reward}\n"
 
 
@@ -292,6 +292,8 @@ class Hearts(gym.Env):
 
         else:
             self.state["currentPlayer"] = (self.state["currentPlayer"]+1) % 4
+
+        self.log += "\n"
 
         return self.observation(), reward, done
 
@@ -330,9 +332,9 @@ class Hearts(gym.Env):
                 stateString += "\033[91m"
 
             if self.isActionValid(i):
-                stateString += "\033[1m{:4s}\033[0m".format(str(self.getCurrentPlayersHand()[i]))
+                stateString += "\033[1m{:7s}\033[0m".format(str(self.getCurrentPlayersHand()[i]))
             else:
-                stateString += "{:4s}".format(str(self.getCurrentPlayersHand()[i]))
+                stateString += "{:7s}".format(str(self.getCurrentPlayersHand()[i]))
 
             if self.getCurrentPlayersHand()[i].suit == Card.hearts or self.getCurrentPlayersHand()[i] == Card(Card.spade,Card.queen):
                 stateString += "\033[0m"
@@ -342,9 +344,9 @@ class Hearts(gym.Env):
 
         for i in range(13):
             if self.isActionValid(i):
-                stateString += "\033[1m{:4s}\033[0m".format(str(i))
+                stateString += "\033[1m{:7s}\033[0m".format(str(i))
             else:
-                stateString += "{:4s}".format("")
+                stateString += "{:7s}".format("")
 
         print(self.log)
         print(stateString)
@@ -410,3 +412,5 @@ class Hearts(gym.Env):
             pScores.append(i * 26)
 
         return pHand, pTrick, pPast, pScores
+
+Hearts.playHearts(1)
