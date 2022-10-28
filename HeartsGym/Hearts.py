@@ -405,6 +405,3 @@ class Hearts(gym.Env):
             pScores.append(i * 26)
 
         return pHand, pTrick, pPast, pScores
-
-
-Hearts.playHearts(3)
