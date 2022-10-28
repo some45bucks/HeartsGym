@@ -127,7 +127,12 @@ class Hearts(gym.Env):
         if len(currentTrick) == 0:
             if actionCard.suit == Card.hearts:
                 return (Card.listContainCard(self.state["pastCards"],Card.hearts) or 
-                    Card.listContainCard(self.state["pastCards"],Card.spade,Card.queen))
+                    Card.listContainCard(self.state["pastCards"],Card.spade,Card.queen) or
+
+                    (not Card.listContainCard(self.getCurrentPlayersHand(),Card.spade) and 
+                     not Card.listContainCard(self.getCurrentPlayersHand(),Card.clubs) and
+                     not Card.listContainCard(self.getCurrentPlayersHand(),Card.dimonds))
+                    )
             else:
                 return True
         else:
