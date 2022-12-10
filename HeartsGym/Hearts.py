@@ -113,6 +113,8 @@ class Hearts(gym.Env):
 
     # tells you if action is valid with respect to current state
     def isActionValid(self,action):
+        action = self.state["actionKey"][action]
+        
         currentHand = self.getCurrentPlayersHand()
 
         if action >= len(currentHand) or action < 0:
@@ -154,12 +156,14 @@ class Hearts(gym.Env):
         obvs = []
 
         for i in range(13):
-            if i >= len(self.getCurrentPlayersHand()):
+            iReMapped = self.state["actionKey"][i]
+            
+            if iReMapped >= len(self.getCurrentPlayersHand()):
                 for j in range(52):
                         obvs.append(0)
 
             else:
-                card = self.getCurrentPlayersHand()[i]
+                card = self.getCurrentPlayersHand()[iReMapped]
 
                 for j in range(52):
                     if card.id != j:
@@ -207,6 +211,7 @@ class Hearts(gym.Env):
             "pastCards": [],
             "currentPlayer": 0,
             "shootingTheMoon": -1,
+            "actionKey": [0,1,2,3,4,5,6,7,8,9,10,11,12]
         }
 
         self.log = ''
@@ -218,6 +223,7 @@ class Hearts(gym.Env):
 
     # main stepping function (returns the reward as a list)
     def step(self, action):
+
         reward = [0,0,0,0]
         done = False
 
@@ -226,8 +232,13 @@ class Hearts(gym.Env):
         if not self.isActionValid(action):
             for i in range(13):
                 if self.isActionValid(i):
-                    action = i
+                    action = self.state["actionKey"][i]
                     break
+        else:
+            action = self.state["actionKey"][action]
+
+        random.shuffle(self.state["actionKey"])        
+        
         if self.getCurrentPlayersHand()[action].suit == Card.hearts or self.getCurrentPlayersHand()[action] == Card(Card.spade,Card.queen):
                 self.log += f"Player {self.getCurrentPlayer()} plays: \033[91m{self.getCurrentPlayersHand()[action]}\033[0m "
         else:
@@ -327,22 +338,29 @@ class Hearts(gym.Env):
         if len(self.getCurrentPlayersHand()) != 0:
             stateString += f"\n\n\n\n          Hand: "
 
-        for i in range(len(self.getCurrentPlayersHand())):
-            if self.getCurrentPlayersHand()[i].suit == Card.hearts or self.getCurrentPlayersHand()[i] == Card(Card.spade,Card.queen):
+        for i in range(13):
+            iReMapped = self.state["actionKey"][i]
+            
+            if iReMapped >= len(self.getCurrentPlayersHand()):
+                stateString += "{:7s}".format("")
+                continue
+            
+            if self.getCurrentPlayersHand()[iReMapped].suit == Card.hearts or self.getCurrentPlayersHand()[iReMapped] == Card(Card.spade,Card.queen):
                 stateString += "\033[91m"
 
             if self.isActionValid(i):
-                stateString += "\033[1m{:7s}\033[0m".format(str(self.getCurrentPlayersHand()[i]))
+                stateString += "\033[1m{:7s}\033[0m".format(str(self.getCurrentPlayersHand()[iReMapped]))
             else:
-                stateString += "{:7s}".format(str(self.getCurrentPlayersHand()[i]))
+                stateString += "{:7s}".format(str(self.getCurrentPlayersHand()[iReMapped]))
 
-            if self.getCurrentPlayersHand()[i].suit == Card.hearts or self.getCurrentPlayersHand()[i] == Card(Card.spade,Card.queen):
+            if self.getCurrentPlayersHand()[iReMapped].suit == Card.hearts or self.getCurrentPlayersHand()[iReMapped] == Card(Card.spade,Card.queen):
                 stateString += "\033[0m"
             
 
         stateString += f"\n                "
 
         for i in range(13):
+
             if self.isActionValid(i):
                 stateString += "\033[1m{:7s}\033[0m".format(str(i))
             else:
